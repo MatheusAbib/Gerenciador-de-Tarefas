@@ -19,7 +19,7 @@ const COMPONENTS = [InclusionFormComponent];
     <app-task-list />
   </div>
 `,
-    styles: '',
+    styles: [''],
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class TaskComponent {}

@@ -1,57 +1,39 @@
-import { APP_BASE_HREF } from '@angular/common';
-import { ngExpressEngine } from '@nguniversal/express-engine'; // Correto para SSR com Angular Universal
+import 'zone.js/node';
+
 import express from 'express';
-import { fileURLToPath } from 'node:url';
-import { dirname, join, resolve } from 'node:path';
-import bootstrap from './src/main.server'; // Ajuste para importar o bootstrap
-import { provideModuleMap } from '@nguniversal/module-map-ngfactory-loader'; // Para carregamento do módulo
+import { join } from 'path';
 
-// Express app
-const server = express();
-const serverDistFolder = dirname(fileURLToPath(import.meta.url));
-const browserDistFolder = resolve(serverDistFolder, '../browser');
-const indexHtml = join(serverDistFolder, 'index.server.html');
+import { ngExpressEngine } from '@nguniversal/express-engine';
+import { APP_BASE_HREF } from '@angular/common';
 
-// Configuração do Express Engine para Angular Universal
-server.engine('html', ngExpressEngine({
-  bootstrap // Utilizando o bootstrap direto do arquivo main.server.ts
+// Import default pois seu main.server.ts exporta default
+import AppServerModule from './src/main.server';
+
+const app = express();
+
+const distFolder = join(process.cwd(), 'dist/my-task-board/browser');
+const indexHtml = 'index.html';
+
+app.engine('html', ngExpressEngine({
+  bootstrap: AppServerModule,
 }));
 
-server.set('view engine', 'html');
-server.set('views', browserDistFolder);
+app.set('view engine', 'html');
+app.set('views', distFolder);
 
-// Serve arquivos estáticos da pasta /browser
-server.get(
-  '**',
-  express.static(browserDistFolder, {
-    maxAge: '1y',
-    index: 'index.html',
-  })
-);
+app.get('*.*', express.static(distFolder, {
+  maxAge: '1y'
+}));
 
-// Todas as rotas regulares usam o motor do Angular
-server.get('**', (req, res, next) => {
-  const { protocol, originalUrl, baseUrl, headers } = req;
-
-  res.render('index', {
+app.get('*', (req, res) => {
+  res.render(indexHtml, {
     req,
-    res,
-    providers: [
-      { provide: APP_BASE_HREF, useValue: baseUrl }
-    ],
-    documentFilePath: indexHtml,
-    url: `${protocol}://${headers.host}${originalUrl}`,
-    publicPath: browserDistFolder
+    providers: [{ provide: APP_BASE_HREF, useValue: req.baseUrl }]
   });
 });
 
-function run(): void {
-  const port = process.env['PORT'] || 4000;
+const port = process.env['PORT'] || 4000;
 
-  // Inicia o servidor Node
-  server.listen(port, () => {
-    console.log(`Node Express server listening on http://localhost:${port}`);
-  });
-}
-
-run();
+app.listen(port, () => {
+  console.log(`Node Express server listening on http://localhost:${port}`);
+});

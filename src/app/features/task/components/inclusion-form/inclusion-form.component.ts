@@ -29,7 +29,7 @@ const COMPONENTS = [IncludeTaskFormComponent, CommonModule]
       </div>
     </div>
   `,
-    styles: '',
+    styles: [''],
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class InclusionFormComponent {

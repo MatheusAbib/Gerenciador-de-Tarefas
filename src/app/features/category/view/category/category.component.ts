@@ -24,7 +24,7 @@ const PIPES = [AsyncPipe];
     }
   </div>
   `,
-    styles: '',
+    styles: [''],
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class CategoryComponent {

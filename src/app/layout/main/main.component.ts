@@ -21,7 +21,7 @@ const MODULES = [MatDividerModule];
       <app-task class="w-3/4"></app-task>
     </div>
   `,
-    styles: '',
+    styles: [''],
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class MainComponent {}

@@ -53,7 +53,7 @@ const MODULES = [
      </mat-form-field>
     </form>
   `,
-    styles: '',
+    styles: [''],
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class IncludeTaskFormComponent {
