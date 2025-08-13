@@ -1,23 +1,6 @@
 {
   "tasks": [
-    {
-      "id": "e3a9",
-      "title": "Treinar perna - legday da morte",
-      "categoryId": "5",
-      "isCompleted": false
-    },
-    {
-      "id": "9465",
-      "title": "Limpar quintal da casa",
-      "categoryId": "1",
-      "isCompleted": false
-    },
-    {
-      "id": "f168",
-      "title": "vdaGhHE",
-      "categoryId": "1",
-      "isCompleted": false
-    }
+
   ],
   "categories": [
     {
