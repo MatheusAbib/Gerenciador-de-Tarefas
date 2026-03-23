@@ -1,9 +1,4 @@
-import {
-  EnvironmentProviders,
-  inject,
-  Provider,
-  provideAppInitializer,
-} from '@angular/core';
+import { EnvironmentProviders, inject, Provider, provideAppInitializer } from '@angular/core';
 import { ThemeService } from '../shared/services/theme.service';
 
 function initializeTheme(): () => void {
@@ -11,13 +6,11 @@ function initializeTheme(): () => void {
 
   return () => {
     const currentColorTheme = themeService.getPreferredColorTheme();
-
     themeService.setColorTheme(currentColorTheme);
   };
 }
 
-export const configThemeInitializerProvider: Provider | EnvironmentProviders =
-  provideAppInitializer(() => {
-    const initializerFn = initializeTheme();
-    return initializerFn();
-  });
+export const configThemeInitializerProvider: Provider | EnvironmentProviders = provideAppInitializer(() => {
+  const initializerFn = initializeTheme();
+  return initializerFn();
+});

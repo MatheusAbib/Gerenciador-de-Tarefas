@@ -16,7 +16,7 @@ import { createTaskForm } from '../../../constants/create-task-form';
 import { Task } from '../../../model/task.model';
 import { TaskService } from '../../../services/task.service';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { delay, finalize } from 'rxjs/operators';
+import { finalize } from 'rxjs/operators';
 import { NgClass } from '@angular/common';
 import { SnackBarService } from '../../../../../shared/services/snack-bar.service';
 
@@ -41,62 +41,83 @@ const COMMONS = [NgClass];
         'cursor-pointer': !isIncludeTaskFormDisabled(),
       }"
       autocomplete="off"
-      class="flex flex-row gap-2 select-none"
+      class="flex flex-col sm:flex-row gap-3 select-none w-full"
       [formGroup]="newTaskForm">
-      <mat-form-field class="w-full">
-        <mat-label for="title" data-testid="titleLabel">Tarefa</mat-label>
+      <mat-form-field class="flex-1">
+        <mat-label for="title">Tarefa</mat-label>
         <input
           formControlName="title"
           matInput
-          placeholder="Adicionar tarefa"
+          placeholder="Digite uma nova tarefa..."
           (keyup.enter)="onEnterToAddATask()" />
-        <mat-hint class="text-tertiary">Aperte enter para adicionar</mat-hint>
+        <mat-hint class="text-tertiary">Aperte Enter para adicionar</mat-hint>
       </mat-form-field>
-      <mat-form-field>
-        <mat-label for="categoryId" data-testid="categoryIdLabel"
-          >Categoria</mat-label
-        >
+      <mat-form-field class="w-full sm:w-48">
+        <mat-label for="categoryId">Categoria</mat-label>
         <mat-select
-          data-testid="matSelect"
           formControlName="categoryId"
-          (selectionChange)="selectionChangeHandler($event)"
-          (keyup.enter)="onEnterToAddATask()">
+          (selectionChange)="selectionChangeHandler($event)">
           @for (category of categories(); track category.id) {
-            <mat-option value="{{ category.id }}">{{
-              category.name
-            }}</mat-option>
+            <mat-option value="{{ category.id }}">
+              <div class="category-option">
+                <div [ngClass]="getColorClass(category.id)" class="color-dot"></div>
+                <span>{{ category.name }}</span>
+              </div>
+            </mat-option>
           }
         </mat-select>
       </mat-form-field>
     </form>
   `,
-  styles: ``,
+  styles: [`
+    .category-option {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .color-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+    }
+    :host {
+      display: block;
+      width: 100%;
+    }
+    .text-tertiary{
+      font-size: 15px;
+    };
+  `],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class IncludeTaskFormComponent {
   private readonly categoryService = inject(CategoryService);
-
   private readonly taskService = inject(TaskService);
-
   private readonly snackBarService = inject(SnackBarService);
 
   public readonly categories = this.categoryService.categories;
-
   public readonly newTaskForm = createTaskForm();
-
   private readonly destroy$ = inject(DestroyRef);
 
   public isIncludeTaskFormDisabled = computed(() => {
     if (this.taskService.isLoadingTask()) {
       this.newTaskForm.disable();
-
       return this.taskService.isLoadingTask();
     }
-
     this.newTaskForm.enable();
-
     return this.taskService.isLoadingTask();
   });
+
+  public getColorClass(categoryId: string): string {
+    const colorMap: Record<string, string> = {
+      '1': 'bg-green-600',
+      '2': 'bg-orange-600',
+      '3': 'bg-blue-600',
+      '4': 'bg-red-600',
+      '5': 'bg-purple-600',
+    };
+    return colorMap[categoryId] || 'bg-gray-600';
+  }
 
   public selectionChangeHandler(event: MatSelectChange): void {
     const categoryId = event.value;
@@ -119,20 +140,22 @@ export class IncludeTaskFormComponent {
     this.taskService
       .createTask(newTask)
       .pipe(
-        delay(4000),
         finalize(() => this.taskService.isLoadingTask.set(false)),
         takeUntilDestroyed(this.destroy$)
       )
       .subscribe({
-        next: task => this.taskService.insertATaskInTheTasksList(task),
-        error: error => {
-          this.snackBarConfigHandler(error.message);
+        next: task => {
+          this.taskService.insertATaskInTheTasksList(task);
+          this.newTaskForm.reset({ categoryId: this.categoryService.selectedCategoryId() });
+          this.snackBarConfigHandler('Tarefa adicionada com sucesso!');
         },
-        complete: () => this.snackBarConfigHandler('Tarefa incluída'),
+        error: error => {
+          this.snackBarConfigHandler('Erro ao adicionar tarefa');
+        },
       });
   }
 
   public snackBarConfigHandler(message: string): void {
-    this.snackBarService.showSnackBar(message, 4000, 'end', 'top');
+    this.snackBarService.showSnackBar(message, 3000, 'end', 'top');
   }
 }

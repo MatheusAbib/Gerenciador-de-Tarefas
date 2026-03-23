@@ -1,6 +1,11 @@
 {
   "tasks": [
-
+    {
+      "title": "dvdvdv",
+      "categoryId": "1",
+      "isCompleted": false,
+      "id": "3QUOD_62N90"
+    }
   ],
   "categories": [
     {
@@ -28,5 +33,6 @@
       "name": "Saúde",
       "color": "purple"
     }
-  ]
+  ],
+  "$schema": "./node_modules/json-server/schema.json"
 }
